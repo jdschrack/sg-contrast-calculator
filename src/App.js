@@ -24,9 +24,8 @@ const App = () => {
       backgroundColor: "#FFFFFF",
       boxShadow:
         "0px 6px 30px rgba(0, 0, 0, 0.08), 0px 1px 6px rgba(0, 0, 0, 0.04)",
-      borderRadius: "12px",
-      paddingLeft: "16px",
-      paddingRight: "16px"
+      borderRadius: "16px",
+      padding: "0 32px 24px 32px"
     },
     inputGroup: {
       display: "flex",
@@ -54,27 +53,35 @@ const App = () => {
       margin: 0,
       padding: 0,
       borderBottomWidth: "1px",
-      borderBottomColor: "#F4F7F7",
+      borderBottomColor: "#E5E5E5",
       borderBottomStyle: "solid",
       display: "flex",
       flexDirection: "row",
       alignItems: "center"
     },
+    infoBlock: {
+      paddingRight: "8px"
+    },
     rgbColorValue: {
       display: "flex",
       flex: "auto",
-      justifyContent: "flex-end",
       fontSize: "18px",
-      fontWeight: "800"
+      fontWeight: "800",
+      justifyContent: "flex-end"
     }
   };
 
   const calculatedStyles = {
+    sampleBlockOverlay: {
+      background:
+        "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 50%)",
+      backgroundBlendMode: "overlay"
+    },
     sampleBlock: {
       display: "flex",
       flexDirection: "column",
       alignSelf: "flex-start",
-      borderRadius: "8px",
+      borderRadius: "16px",
       borderWidth: "1px",
       borderColor: "#BDBFBF",
       justifyContent: "center",
@@ -101,13 +108,12 @@ const App = () => {
         sampleTextColor && sampleTextColor !== "" ? sampleTextColor : "#000"
     }
   };
-
   const [blackContrastRatio, setBlackContrastRatio] = useState();
   const [whiteContrastRatio, setWhiteContrastRatio] = useState();
-
   const handleClick = (e) => {
     e.preventDefault();
     let rgb = hexToRgb(hexValue);
+
     setRgbValue(rgb);
 
     let lumin = getLuminance(rgb.red, rgb.green, rgb.blue);
@@ -116,42 +122,37 @@ const App = () => {
     let blackLumin = getLuminance(65, 65, 65);
     let whiteLumn = getLuminance(255, 255, 255);
 
-    console.log(blackLumin, whiteLumn);
-
     const whiteContrast =
       lumin > whiteLumn
         ? (whiteLumn + 0.05) / (lumin + 0.05)
         : (lumin + 0.05) / (whiteLumn + 0.05);
+
+    console.log(whiteContrast);
 
     const blackContrast =
       lumin > blackLumin
         ? (blackLumin + 0.05) / (lumin + 0.05)
         : (lumin + 0.05) / (blackLumin + 0.05);
 
+    console.log(blackContrast);
+
     setWhiteContrastRatio(whiteContrast);
     setBlackContrastRatio(blackContrast);
     let white = whiteContrast < 1 / 3;
     let black = blackContrast < 1 / 3;
 
-    console.log(white ? "Pass" : "Fail");
-
-    console.log(black ? "Pass" : "Fail");
-
     if (white && !black) {
       setSampleTextColor("rgb(255,255,255)");
-      console.log("rgb(255,255,255)");
     } else if (black && !white) {
       setSampleTextColor("rgb(65,65,65)");
-    } else if (whiteContrast > blackContrast) {
+    } else if (whiteContrast < blackContrast) {
       setSampleTextColor("rgb(255,255,255)");
     } else {
       setSampleTextColor("rgb(65,65,65)");
     }
   };
 
-  useEffect(() => {
-    console.log(hexValue);
-  }, [hexValue]);
+  useEffect(() => {}, [hexValue]);
 
   return (
     <div style={styles.main}>
@@ -180,7 +181,7 @@ const App = () => {
                 style={colorFocus ? styles.focusInput : styles.textInput}
               />
             </div>
-            <div>
+            <div style={styles.infoBlock}>
               <div style={styles.rgbValues}>
                 <div style={styles.rgbColorName}>
                   <p>Red:</p>
@@ -210,7 +211,13 @@ const App = () => {
                   <p>Luminance:</p>
                 </div>
                 <div style={styles.rgbColorValue}>
-                  <p>{parseFloat(luminance).toFixed(2)}</p>
+                  <p>
+                    {!luminance ||
+                    luminance === "" ||
+                    parseFloat(luminance) === "NaN"
+                      ? ""
+                      : parseFloat(luminance).toFixed(2)}
+                  </p>
                 </div>
               </div>
               <div style={styles.rgbValues}>
@@ -218,7 +225,13 @@ const App = () => {
                   <p>White Contrast Ratio:</p>
                 </div>
                 <div style={styles.rgbColorValue}>
-                  <p>{parseFloat(whiteContrastRatio).toFixed(2)}</p>
+                  <p>
+                    {!whiteContrastRatio ||
+                    whiteContrastRatio === "" ||
+                    parseFloat(whiteContrastRatio) === "NaN"
+                      ? ""
+                      : parseFloat(whiteContrastRatio).toFixed(2)}
+                  </p>
                 </div>
               </div>
               <div style={styles.rgbValues}>
@@ -226,18 +239,30 @@ const App = () => {
                   <p>Black Contrast Ratio:</p>
                 </div>
                 <div style={styles.rgbColorValue}>
-                  <p>{parseFloat(blackContrastRatio).toFixed(2)}</p>
+                  <p>
+                    {!blackContrastRatio ||
+                    blackContrastRatio === "" ||
+                    parseFloat(blackContrastRatio) === "NaN"
+                      ? ""
+                      : parseFloat(blackContrastRatio).toFixed(2)}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-          <div style={calculatedStyles.sampleBlock}>
+          <div
+            style={{
+              ...calculatedStyles.sampleBlock,
+              ...calculatedStyles.sampleBlockOverlay
+            }}
+          >
             <h1 style={calculatedStyles.headlineStyle}>Sample Headline</h1>
             <h2 style={calculatedStyles.subtitle}>Sample Subtitle</h2>
           </div>
         </div>
         <div style={styles.buttonArea}>
           <button
+            disabled={!hexValue || hexValue === ""}
             type="button"
             onClick={(e) => handleClick(e)}
             style={styles.defaultButton}

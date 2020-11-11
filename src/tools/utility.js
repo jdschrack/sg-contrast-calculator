@@ -17,10 +17,29 @@ export const hexToRgb = (h) => {
   return { red: r, green: g, blue: b };
 };
 
+const buildGradientBackground = (hex) => {
+  let rgb = hexToRgb(hex);
+
+  return "background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);";
+};
+
+const adjustGamma = (val) => {
+  return Math.pow((val + 0.055) / 1.055, 2.4);
+};
+
 export const getLuminance = (r, g, b) => {
-  var a = [r, g, b].map(function (v) {
-    v /= 255;
-    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-  });
-  return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+  const rsrgb = r / 255;
+  const gsrgb = g / 255;
+  const bsrgb = b / 255;
+  const lowc = 1 / 12.92;
+
+  const rc = 0.2126;
+  const gc = 0.7152;
+  const bc = 0.0722;
+
+  const red = rsrgb <= 0.03928 ? rsrgb * lowc : adjustGamma(rsrgb);
+  const green = gsrgb <= 0.03928 ? gsrgb * lowc : adjustGamma(gsrgb);
+  const blue = bsrgb <= 0.03928 ? bsrgb * lowc : adjustGamma(bsrgb);
+
+  return red * rc + green * gc + blue * bc;
 };
