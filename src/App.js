@@ -9,6 +9,8 @@ const App = () => {
   const [rgbValue, setRgbValue] = useState({ red: 0, green: 0, blue: 0 });
   const [luminance, setLuminance] = useState();
   const [sampleTextColor, setSampleTextColor] = useState();
+  const [blackContrastRatio, setBlackContrastRatio] = useState();
+  const [whiteContrastRatio, setWhiteContrastRatio] = useState();
 
   const styles = {
     ...CommonStyles,
@@ -19,6 +21,7 @@ const App = () => {
       margin: "16px"
     },
     mainContainer: {
+      maxWidth: "900px",
       display: "flex",
       flexDirection: "column",
       backgroundColor: "#FFFFFF",
@@ -72,6 +75,27 @@ const App = () => {
   };
 
   const calculatedStyles = {
+    defaultButton: {
+      backgroundColor: "#0558A7",
+      borderRadius: "8px",
+      flex: "none",
+      alignSelf: "center",
+      flexGrow: 0,
+      margin: "12px 0px",
+      color: "#fff",
+      padding: "16px 32px",
+      fontSize: "16px",
+      fontWeight: "600",
+      lineHieght: "24px",
+      borderCollapse: "collapse",
+      borderColor: "transparent"
+    },
+    bodyText: {
+      fontSize: "16px",
+      lineHeight: "24px",
+      color:
+        sampleTextColor && sampleTextColor !== "" ? sampleTextColor : "#000"
+    },
     sampleBlockOverlay: {
       background:
         "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 50%)",
@@ -108,8 +132,6 @@ const App = () => {
         sampleTextColor && sampleTextColor !== "" ? sampleTextColor : "#000"
     }
   };
-  const [blackContrastRatio, setBlackContrastRatio] = useState();
-  const [whiteContrastRatio, setWhiteContrastRatio] = useState();
   const handleClick = (e) => {
     e.preventDefault();
     let rgb = hexToRgb(hexValue);
@@ -124,16 +146,27 @@ const App = () => {
 
     const whiteContrast =
       lumin > whiteLumn
-        ? (whiteLumn + 0.05) / (lumin + 0.05)
-        : (lumin + 0.05) / (whiteLumn + 0.05);
+        ? (lumin + 0.05) / (whiteLumn + 0.05)
+        : (whiteLumn + 0.05) / (lumin + 0.05);
 
     console.log(whiteContrast);
 
-    const blackContrast =
+    let blackValue = "rgb(65,65,65)";
+    let blackContrast =
       lumin > blackLumin
-        ? (blackLumin + 0.05) / (lumin + 0.05)
-        : (lumin + 0.05) / (blackLumin + 0.05);
+        ? (lumin + 0.05) / (blackLumin + 0.05)
+        : (blackLumin + 0.05) / (lumin + 0.05);
 
+    if (whiteContrast < blackContrast && blackContrast < 3.5) {
+      blackLumin = getLuminance(17, 17, 17);
+
+      blackContrast =
+        lumin > blackLumin
+          ? (lumin + 0.05) / (blackLumin + 0.05)
+          : (blackLumin + 0.05) / (lumin + 0.05);
+
+      blackValue = "rgb(17, 17, 17)";
+    }
     console.log(blackContrast);
 
     setWhiteContrastRatio(whiteContrast);
@@ -144,11 +177,11 @@ const App = () => {
     if (white && !black) {
       setSampleTextColor("rgb(255,255,255)");
     } else if (black && !white) {
-      setSampleTextColor("rgb(65,65,65)");
-    } else if (whiteContrast < blackContrast) {
+      setSampleTextColor(blackValue);
+    } else if (whiteContrast > blackContrast) {
       setSampleTextColor("rgb(255,255,255)");
     } else {
-      setSampleTextColor("rgb(65,65,65)");
+      setSampleTextColor(blackValue);
     }
   };
 
@@ -160,8 +193,10 @@ const App = () => {
         <div>
           <p style={styles.headlineText}>Color Contrast Calculator</p>
           <p style={styles.defaultText}>
-            Use this tool to calculate contrast and find good variations of
-            colors that meet WGAC standards.
+            Use this tool to calculate contrast and find good text colors that
+            meet WCAG standards. For more information visit{" "}
+            <a href="https://www.w3.org/WAI/standards-guidelines/wcag/">WGAC</a>
+            {"."}
           </p>
         </div>
         <div style={styles.primaryContent}>
@@ -250,14 +285,20 @@ const App = () => {
               </div>
             </div>
           </div>
-          <div
-            style={{
-              ...calculatedStyles.sampleBlock,
-              ...calculatedStyles.sampleBlockOverlay
-            }}
-          >
+          <div style={calculatedStyles.sampleBlock}>
             <h1 style={calculatedStyles.headlineStyle}>Sample Headline</h1>
             <h2 style={calculatedStyles.subtitle}>Sample Subtitle</h2>
+            <p style={calculatedStyles.bodyText}>
+              Bacon ipsum dolor amet frankfurter pork cupim boudin, burgdoggen
+              pork belly bresaola. Pancetta doner cow, tongue rump beef ribs
+              jerky prosciutto pastrami. Tail prosciutto flank drumstick
+              burgdoggen frankfurter. Meatloaf shoulder picanha beef turducken
+              capicola ball tip shankle jerky bresaola short ribs sausage.
+              Meatball spare ribs pastrami, landjaeger brisket shank jerky.
+              Turkey kevin filet mignon tri-tip ham tenderloin sirloin cow short
+              loin. Cupim rump beef ribs, ribeye strip steak fatback kielbasa
+              short loin boudin tail prosciutto porchetta swine sausage.
+            </p>
           </div>
         </div>
         <div style={styles.buttonArea}>
@@ -265,7 +306,7 @@ const App = () => {
             disabled={!hexValue || hexValue === ""}
             type="button"
             onClick={(e) => handleClick(e)}
-            style={styles.defaultButton}
+            style={calculatedStyles.defaultButton}
           >
             Submit
           </button>

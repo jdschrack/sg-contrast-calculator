@@ -4,7 +4,14 @@
   font-family: "Open Sans", sans-serif;
   color: #414142;
 }
-
+input:focus {
+  outline: none !important;
+  border-color: #0558a7;
+}
+textarea:focus {
+  outline: none !important;
+  border-color: #0558a7;
+}
 body {
   background-color: #e5e5e5;
 }
