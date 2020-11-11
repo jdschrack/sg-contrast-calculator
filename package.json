@@ -10,6 +10,7 @@
     "react-scripts": "3.4.3"
   },
   "devDependencies": {
+    "prettier": "^2.0.4",
     "typescript": "3.8.3"
   },
   "scripts": {
@@ -23,5 +24,16 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "tabWidth": 3,
+    "semi": true,
+    "jsxSingleQuote": true,
+    "jsxBracketSameLine": true,
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "parser": "babel-ts"
+  }
 }
